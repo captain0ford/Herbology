@@ -1,0 +1,7 @@
+package captainford.herbology;
+
+public class HerbologyCommonProxy {
+  public void renderThings(){
+		
+	}
+}
