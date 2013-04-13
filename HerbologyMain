@@ -1,0 +1,559 @@
+package captainford.herbology;
+
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
+import net.minecraftforge.common.Configuration;
+import net.minecraftforge.oredict.OreDictionary;
+import captainford.herbology.ingredients.AconiteRoot;
+import captainford.herbology.ingredients.BuckthornBerry;
+import captainford.herbology.ingredients.EucaLeaf;
+import captainford.herbology.ingredients.FennelSeed;
+import captainford.herbology.ingredients.GinkoSeed;
+import captainford.herbology.ingredients.GinsengBerry;
+import captainford.herbology.ingredients.JasminePetals;
+import captainford.herbology.ingredients.JuniperBerry;
+import captainford.herbology.ingredients.LavenderPetals;
+import captainford.herbology.ingredients.MandrakeRoot;
+import captainford.herbology.ingredients.MyrrhResin;
+import captainford.herbology.ingredients.RosemaryLeaf;
+import captainford.herbology.ingredients.SageLeaf;
+import captainford.herbology.ingredients.ThymeLeaf;
+import captainford.herbology.ingredients.TurmericStem;
+import captainford.herbology.ingredients.ValerianRoot;
+import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.Init;
+import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.Mod.PostInit;
+import cpw.mods.fml.common.Mod.PreInit;
+import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.LanguageRegistry;
+
+@Mod(modid = "Herbology", name = "Herbology", version = "1.0.2")
+@NetworkMod(clientSideRequired=true, serverSideRequired=false)
+
+public class HerbologyMain {
+  @Instance("Herbology")
+    public static HerbologyMain instance;
+	
+	@SidedProxy(clientSide="captainford.herbology.client.HerbologyClientProxy", serverSide="captainford.herbology.HerbologyCommonProxy")
+    public static HerbologyCommonProxy proxy;
+	
+	public static final Item herbBook = new HerbBook(3001);
+	public static final Item mortarPestle = new MortarPestle(3000);
+	
+	public static final ItemFood aconiteRoot = new AconiteRoot(3002);
+	public static final ItemFood buckthornBerry = new BuckthornBerry(3003);
+	public static final ItemFood eucaLeaf = new EucaLeaf(3004);
+	public static final ItemFood fennelSeed = new FennelSeed(3005);
+	//public static final ItemFood geraniumRoot = new GeraniumRoot(3006);
+	public static final ItemFood ginkoSeed = new GinkoSeed(3007);
+	public static final ItemFood ginsengBerry = new GinsengBerry(3008);
+	//public static final ItemFood hibiscusStem = new HibiscusStem(3009);
+	public static final ItemFood jasminePetals = new JasminePetals(3010);
+	public static final ItemFood juniperBerry = new JuniperBerry(3011);
+	public static final ItemFood lavenderPetals = new LavenderPetals(3012);
+	public static final ItemFood mandrakeRoot = new MandrakeRoot(3013);
+	public static final ItemFood myrrhResin = new MyrrhResin(3014);
+	//public static final ItemFood nettleLeaf = new NettleLeaf(3015);
+	//public static final ItemFood opiumLeaf = new OpiumLeaf(3016);
+	public static final ItemFood rosemaryLeaf = new RosemaryLeaf(3017);
+	public static final ItemFood sageLeaf = new SageLeaf(3018);
+	public static final ItemFood thymeLeaf = new ThymeLeaf(3019);
+	public static final ItemFood turmericStem = new TurmericStem(3020);
+	public static final ItemFood valerianRoot = new ValerianRoot(3021);
+	
+	public static final ItemFood hastePowder = new HerbalPowder(10022);
+	public static final ItemFood jumpPowder = new HerbalPowder(10023);
+	public static final ItemFood sprintPowder = new HerbalPowder(10024);
+	public static final ItemFood protectPowder = new HerbalPowder(10025);
+	public static final ItemFood healPowder = new HerbalPowder(10026);
+	public static final ItemFood nightVisPowder = new HerbalPowder(10027);
+	public static final ItemFood regenPowder = new HerbalPowder(10028);
+	public static final ItemFood fireResPowder = new HerbalPowder(10029);
+	public static final ItemFood strengthPowder = new HerbalPowder(10030);
+	public static final ItemFood waterPowder = new HerbalPowder(10031);
+	
+	public static final Block ginseng = new PlantGinseng(4000);
+	public static final Block juniper = new PlantJuniper(4001);
+	public static final Block buckthorn = new PlantBuckthorn(4002);
+	public static final Block aconite = new PlantAconite(4003);
+	public static final Block fennel = new PlantFennel(4004);
+	public static final Block ginko = new PlantGinko(4005);
+	public static final Block jasmine = new PlantJasmine(4006);
+	public static final Block lavender = new PlantLavender(4007);
+	public static final Block mandrake = new PlantMandrake(4008);
+	public static final Block myrrh = new PlantMyrrh(4009);
+	public static final Block rosemary = new PlantRosemary(4010);
+	public static final Block sage = new PlantSage(4011);
+	public static final Block thyme = new PlantThyme(4012);
+	public static final Block turmeric = new PlantTurmeric(4013);
+	public static final Block valerian = new PlantValerian(4014);
+	public static final Block euca = new PlantEuca(4015);
+	
+	
+	@PreInit
+    public void preInit(FMLPreInitializationEvent fmlpreinitializationevent){
+    	Configuration config = new Configuration(fmlpreinitializationevent.getSuggestedConfigurationFile());
+    	config.load();
+    	int aconiteID = config.getBlock("aconite", 4003).getInt();
+    	int buckthornID = config.getBlock("buckthorn", 4002).getInt();
+    	int eucaID = config.getBlock("euca", 4015).getInt();
+    	int fennelID = config.getBlock("fennel", 4004).getInt();
+    	int ginsengID = config.getBlock("ginseng", 4000).getInt();
+    	int juniperID = config.getBlock("juniper", 4001).getInt();
+    	int ginkoID = config.getBlock("ginko", 4005).getInt();
+    	int jasmineID = config.getBlock("jasmine", 4006).getInt();
+    	int lavenderID = config.getBlock("lavender", 4007).getInt();
+    	int mandrakeID = config.getBlock("mandrake", 4008).getInt();
+    	int myrrhID = config.getBlock("myrrh", 4009).getInt();
+    	int rosemaryID = config.getBlock("rosemary", 4010).getInt();
+    	int sageID = config.getBlock("sage", 4011).getInt();
+    	int thymeID = config.getBlock("thyme", 4012).getInt();
+    	int turmericID = config.getBlock("turmeric", 4013).getInt();
+    	int valerianID = config.getBlock("valerian", 4014).getInt();
+    	
+    	int mortarPestleID = config.getItem("mortarPestle", 3000).getInt();
+    	int herbBookID = config.getItem("herbBook", 3001).getInt();
+    	int aconiteRootID = config.getItem("aconiteRoot", 3002).getInt();
+    	int buckthornBerryID = config.getItem("buckthornBerry", 3003).getInt();
+    	int eucaLeafID = config.getItem("eucaLeaf", 3004).getInt();
+    	int fennelSeedID = config.getItem("fennelSeed", 3005).getInt();
+    	int ginkoSeedID = config.getItem("ginkoSeed", 3006).getInt();
+    	int ginsengBerryID = config.getItem("ginsengBerry", 3007).getInt();
+    	int jasminePetalsID = config.getItem("jasminePetals", 3008).getInt();
+    	int juniperBerryID = config.getItem("juniperBerry", 3009).getInt();
+    	int lavenderPetalID = config.getItem("lavenderPetals", 3010).getInt();
+    	int mandrakeRootID = config.getItem("mandrakeRoot", 3011).getInt();
+    	int myrrhResinID = config.getItem("myrrhResin", 3012).getInt();
+    	int rosemaryLeafID = config.getItem("rosemaryLeaf", 3013).getInt();
+    	int sageLeafID = config.getItem("sageLeaf", 3014).getInt();
+    	int thymeLeafID = config.getItem("thymeLeaf", 3015).getInt();
+    	int turmericStemID = config.getItem("turmericStem", 3016).getInt();
+    	int valerianRootID = config.getItem("valerianRoot", 3017).getInt();
+    	config.save();
+    }
+	
+	@Init
+	public void load(FMLInitializationEvent event){
+		//Plants
+		GameRegistry.registerBlock(ginseng, "ginseng");
+        LanguageRegistry.addName(ginseng, "Ginseng");
+        GameRegistry.registerBlock(juniper, "juniper");
+        LanguageRegistry.addName(juniper, "Juniper");
+        GameRegistry.registerBlock(buckthorn, "buckthorn");
+        LanguageRegistry.addName(buckthorn, "Buckthorn");
+        GameRegistry.registerBlock(aconite, "aconite");
+        LanguageRegistry.addName(aconite, "Aconite");
+        GameRegistry.registerBlock(fennel, "fennel");
+        LanguageRegistry.addName(fennel, "Fennel");
+        GameRegistry.registerBlock(rosemary, "rosemary");
+        LanguageRegistry.addName(rosemary, "Rosemary");
+        GameRegistry.registerBlock(jasmine, "jasmine");
+        LanguageRegistry.addName(jasmine, "Jasmine");
+        GameRegistry.registerBlock(lavender, "lavender");
+        LanguageRegistry.addName(lavender, "Lavender");
+        GameRegistry.registerBlock(turmeric, "turmeric");
+        LanguageRegistry.addName(turmeric, "Turmeric");
+        GameRegistry.registerBlock(sage, "sage");
+        LanguageRegistry.addName(sage, "Sage");
+        GameRegistry.registerBlock(mandrake, "mandrake");
+        LanguageRegistry.addName(mandrake, "Mandrake");
+        GameRegistry.registerBlock(thyme, "thyme");
+        LanguageRegistry.addName(thyme, "Thyme");
+        GameRegistry.registerBlock(myrrh, "myrrh");
+        LanguageRegistry.addName(myrrh, "Myrrh");
+        GameRegistry.registerBlock(valerian, "valerian");
+        LanguageRegistry.addName(valerian, "Valerian");
+        GameRegistry.registerBlock(ginko, "ginko");
+        LanguageRegistry.addName(ginko, "Ginko");
+        GameRegistry.registerBlock(euca, "euca");
+        LanguageRegistry.addName(euca, "Eucalyptus");
+        
+        //Ingredients
+        GameRegistry.registerItem(aconiteRoot, "aconiteRoot");
+        LanguageRegistry.addName(aconiteRoot, "Aconite Root");
+        GameRegistry.registerItem(buckthornBerry, "buckthornBerry");
+        LanguageRegistry.addName(buckthornBerry, "Buckthorn Berries");
+        GameRegistry.registerItem(eucaLeaf, "eucaLeaf");
+        LanguageRegistry.addName(eucaLeaf, "Eucalyptus Leaves");
+        GameRegistry.registerItem(fennelSeed, "fennelSeed");
+        LanguageRegistry.addName(fennelSeed, "Fennel Seeds");
+        //GameRegistry.registerItem(geraniumRoot, "geraniumRoot");
+        //LanguageRegistry.addName(geraniumRoot, "Geranium Root");
+        GameRegistry.registerItem(ginkoSeed, "ginkoSeed");
+        LanguageRegistry.addName(ginkoSeed, "Ginko Seeds");
+        GameRegistry.registerItem(ginsengBerry, "ginsengBerry");
+        LanguageRegistry.addName(ginsengBerry, "Ginseng Berries");
+        //GameRegistry.registerItem(hibiscusStem, "hibiscusStem");
+        //LanguageRegistry.addName(hibiscusStem, "Hibiscus Stem");
+        GameRegistry.registerItem(jasminePetals, "jasminePetals");
+        LanguageRegistry.addName(jasminePetals, "Jasmine Petals");
+        GameRegistry.registerItem(juniperBerry, "juniperBerry");
+        LanguageRegistry.addName(juniperBerry, "Juniper Berries");
+        GameRegistry.registerItem(lavenderPetals, "lavenderPetals");
+        LanguageRegistry.addName(lavenderPetals, "Lavender Petals");
+        GameRegistry.registerItem(mandrakeRoot, "mandrakeRoot");
+        LanguageRegistry.addName(mandrakeRoot, "Mandrake Root");
+        GameRegistry.registerItem(myrrhResin, "myrrhResin");
+        LanguageRegistry.addName(myrrhResin, "Mryyh Resin");
+        //GameRegistry.registerItem(nettleLeaf, "nettleLeaf");
+        //LanguageRegistry.addName(nettleLeaf, "Nettle Leaves");
+        //GameRegistry.registerItem(opiumLeaf, "opiumLeaf");
+        //LanguageRegistry.addName(opiumLeaf, "Opium Leaves");
+        GameRegistry.registerItem(rosemaryLeaf, "rosemaryLeaf");
+        LanguageRegistry.addName(rosemaryLeaf, "Rosemary Leaves");
+        GameRegistry.registerItem(sageLeaf, "sageLeaf");
+        LanguageRegistry.addName(sageLeaf, "Sage Leaves");
+        GameRegistry.registerItem(thymeLeaf, "thymeLeaf");
+        LanguageRegistry.addName(thymeLeaf, "Thyme Leaves");
+        GameRegistry.registerItem(turmericStem, "turmericStem");
+        LanguageRegistry.addName(turmericStem, "Turmeric Stem");
+        GameRegistry.registerItem(valerianRoot, "valerianRoot");
+        LanguageRegistry.addName(valerianRoot, "Valerian Root");
+        
+        //Powders
+        GameRegistry.registerItem(hastePowder, "hastePowder");
+        LanguageRegistry.addName(hastePowder, "Herbal Medicine");
+        GameRegistry.registerItem(jumpPowder, "jumpPowder");
+        LanguageRegistry.addName(jumpPowder, "Herbal Medicine");
+        GameRegistry.registerItem(sprintPowder, "sprintPowder");
+        LanguageRegistry.addName(sprintPowder, "Herbal Medicine");
+        GameRegistry.registerItem(protectPowder, "protectPowder");
+        LanguageRegistry.addName(protectPowder, "Herbal Medicine");
+        GameRegistry.registerItem(healPowder, "healPowder");
+        LanguageRegistry.addName(healPowder, "Herbal Medicine");
+        GameRegistry.registerItem(nightVisPowder, "nightVisPowder");
+        LanguageRegistry.addName(nightVisPowder, "Herbal Medicine");
+        GameRegistry.registerItem(regenPowder, "regenPowder");
+        LanguageRegistry.addName(regenPowder, "Herbal Medicine");
+        GameRegistry.registerItem(fireResPowder, "fireResPowder");
+        LanguageRegistry.addName(fireResPowder, "Herbal Medicine");
+        GameRegistry.registerItem(strengthPowder, "strengthPowder");
+        LanguageRegistry.addName(strengthPowder, "Herbal Medicine");
+        GameRegistry.registerItem(waterPowder, "waterPowder");
+        LanguageRegistry.addName(waterPowder, "Herbal Medicine");
+        
+        /*
+    	MinecraftForge.addGrassSeed(new ItemStack(aconiteRoot), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(buckthornBerry), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(eucaLeaf), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(fennelSeed), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(geraniumRoot), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(ginkoSeed), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(ginsengBerry), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(hibiscusStem), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(jasminePetals), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(juniperBerry), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(lavenderPetals), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(mandrakeRoot), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(myrrhResin), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(nettleLeaf), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(opiumLeaf), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(rosemaryLeaf), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(sageLeaf), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(thymeLeaf), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(turmericStem), 3);
+    	MinecraftForge.addGrassSeed(new ItemStack(valerianRoot), 3);
+        */
+    	GameRegistry.registerItem(herbBook, "herbBook");
+		LanguageRegistry.addName(herbBook, "Herbologist's Field Guide");
+		
+		GameRegistry.registerItem(mortarPestle, "mortarPestle");
+		LanguageRegistry.addName(mortarPestle, "Mortar & Pestle");
+    	
+        GameRegistry.addRecipe(new ItemStack(herbBook), "ggg", "gbg", "ggg", 
+        		'g', new ItemStack(Item.seeds), 'b', new ItemStack(Item.book));
+        
+        GameRegistry.addRecipe(new ItemStack(mortarPestle), "c c", "ccc", 
+        		'c', new ItemStack(Block.stone));
+        
+        GameRegistry.addRecipe(new ItemStack(Item.brewingStand), "bsb", " s ", "ccc", 'b', 
+        		new ItemStack(Item.glassBottle), 's', new ItemStack(Item.stick), 
+        		'c', new ItemStack(Block.cobblestone));
+        
+        
+        //Herbal mixtures
+        	//Base Powders
+		GameRegistry.addRecipe(new ItemStack(hastePowder.setPotionEffect(Potion.digSpeed.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+				'h', new ItemStack(eucaLeaf), 
+				'p', new ItemStack(Item.paper), 
+				'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(sprintPowder.setPotionEffect(Potion.moveSpeed.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(sageLeaf), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(healPowder.setPotionEffect(Potion.heal.id, 1, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(rosemaryLeaf), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(jumpPowder.setPotionEffect(Potion.jump.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(lavenderPetals), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(fireResPowder.setPotionEffect(Potion.fireResistance.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(turmericStem), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(strengthPowder.setPotionEffect(Potion.damageBoost.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(buckthornBerry), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(protectPowder.setPotionEffect(Potion.resistance.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(ginkoSeed), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(nightVisPowder.setPotionEffect(Potion.nightVision.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(myrrhResin), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(regenPowder.setPotionEffect(Potion.regeneration.id, 20, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(thymeLeaf), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+		GameRegistry.addRecipe(new ItemStack(waterPowder.setPotionEffect(Potion.waterBreathing.id, 90, 0, 1.0F)), " h ", " p ", " m ", 
+    			'h', new ItemStack(valerianRoot), 
+    			'p', new ItemStack(Item.paper), 
+    			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+
+//1 Ginseng Powders
+	GameRegistry.addRecipe(new ItemStack(hastePowder.setPotionEffect(Potion.digSpeed.id, 60, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(eucaLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(sprintPowder.setPotionEffect(Potion.moveSpeed.id, 60, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(sageLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(healPowder.setPotionEffect(Potion.heal.id, 1, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(rosemaryLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(jumpPowder.setPotionEffect(Potion.jump.id, 60, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(lavenderPetals), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(fireResPowder.setPotionEffect(Potion.fireResistance.id, 60, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(turmericStem), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(strengthPowder.setPotionEffect(Potion.damageBoost.id, 60, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(buckthornBerry), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(protectPowder.setPotionEffect(Potion.resistance.id, 60, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(ginkoSeed), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(regenPowder.setPotionEffect(Potion.regeneration.id, 10, 1, 1.0F)), "gh ", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(thymeLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+
+//2 Ginseng Powders
+	GameRegistry.addRecipe(new ItemStack(hastePowder.setPotionEffect(Potion.digSpeed.id, 30, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(eucaLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(sprintPowder.setPotionEffect(Potion.moveSpeed.id, 30, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(sageLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(healPowder.setPotionEffect(Potion.heal.id, 1, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(rosemaryLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(jumpPowder.setPotionEffect(Potion.jump.id, 30, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(lavenderPetals), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(fireResPowder.setPotionEffect(Potion.fireResistance.id, 30, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(turmericStem), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(strengthPowder.setPotionEffect(Potion.damageBoost.id, 30, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(buckthornBerry), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(protectPowder.setPotionEffect(Potion.resistance.id, 30, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(ginkoSeed), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(regenPowder.setPotionEffect(Potion.regeneration.id, 5, 2, 1.0F)), "ghg", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'h', new ItemStack(thymeLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+
+
+//1 Juniper Powders
+	GameRegistry.addRecipe(new ItemStack(hastePowder.setPotionEffect(Potion.digSpeed.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(eucaLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(sprintPowder.setPotionEffect(Potion.moveSpeed.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(sageLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(jumpPowder.setPotionEffect(Potion.jump.id, 60, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(lavenderPetals), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(fireResPowder.setPotionEffect(Potion.fireResistance.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(turmericStem), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(strengthPowder.setPotionEffect(Potion.damageBoost.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(buckthornBerry), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(protectPowder.setPotionEffect(Potion.resistance.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(ginkoSeed), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(nightVisPowder.setPotionEffect(Potion.nightVision.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(myrrhResin), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(regenPowder.setPotionEffect(Potion.regeneration.id, 40, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(thymeLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(waterPowder.setPotionEffect(Potion.waterBreathing.id, 120, 0, 1.0F)), "jh ", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(valerianRoot), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+
+//2 Juniper Powders
+	GameRegistry.addRecipe(new ItemStack(hastePowder.setPotionEffect(Potion.digSpeed.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(eucaLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(sprintPowder.setPotionEffect(Potion.moveSpeed.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(sageLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(jumpPowder.setPotionEffect(Potion.jump.id, 75, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(lavenderPetals), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(fireResPowder.setPotionEffect(Potion.fireResistance.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(turmericStem), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(strengthPowder.setPotionEffect(Potion.damageBoost.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(buckthornBerry), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(protectPowder.setPotionEffect(Potion.resistance.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(ginkoSeed), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(nightVisPowder.setPotionEffect(Potion.nightVision.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(myrrhResin), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(regenPowder.setPotionEffect(Potion.regeneration.id, 50, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(thymeLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(waterPowder.setPotionEffect(Potion.waterBreathing.id, 150, 0, 1.0F)), "jhj", " p ", " m ", 
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(valerianRoot), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+
+//Ginseng/Juniper Powders
+	GameRegistry.addRecipe(new ItemStack(hastePowder.setPotionEffect(Potion.digSpeed.id, 90, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(eucaLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(sprintPowder.setPotionEffect(Potion.moveSpeed.id, 90, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(sageLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(jumpPowder.setPotionEffect(Potion.jump.id, 90, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(lavenderPetals), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(fireResPowder.setPotionEffect(Potion.fireResistance.id, 90, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(turmericStem), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(protectPowder.setPotionEffect(Potion.resistance.id, 90, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(ginkoSeed), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(regenPowder.setPotionEffect(Potion.regeneration.id, 50, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(thymeLeaf), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	GameRegistry.addRecipe(new ItemStack(strengthPowder.setPotionEffect(Potion.damageBoost.id, 90, 1, 1.0F)), "ghj", " p ", " m ", 
+			'g', new ItemStack(ginsengBerry),
+			'j', new ItemStack(juniperBerry),
+			'h', new ItemStack(buckthornBerry), 
+			'p', new ItemStack(Item.paper), 
+			'm', new ItemStack(mortarPestle, 1, OreDictionary.WILDCARD_VALUE));
+	
+        	//GameRegistry.registerCraftingHandler(new HerbologyCraftingHandler());
+        	GameRegistry.registerWorldGenerator(new HerbologyWorldGenerator());
+        	
+        	proxy.renderThings();
+	}
+	
+	@PostInit
+	public void postInit(FMLPostInitializationEvent fmlpostinitializationevent){
+		
+	}
+}
